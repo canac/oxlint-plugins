@@ -18,21 +18,6 @@ const count = 1;
 items.map((item) => item.name);
 ```
 
-### `canac/multiline-control-flow`
-
-Requires `if` / `else` / `while` / `do-while` / `for` / `for-in` / `for-of` bodies to be wrapped in a block. Auto-fixable.
-
-```ts
-// Bad
-if (done) return;
-for (const item of array) use(item);
-
-// Good
-if (done) {
-  return;
-}
-```
-
 ### `canac/prefer-arrow-functions`
 
 Disallows `function` declarations and expressions in favor of arrow functions. Auto-fixable. Skips generators, class/object methods, and getters/setters.
@@ -68,7 +53,6 @@ Reference the plugin from your `.oxlintrc.json` and turn on the rules you want:
   "jsPlugins": ["@canac/oxlint-plugins"],
   "rules": {
     "canac/descriptive-names": "error",
-    "canac/multiline-control-flow": "error",
     "canac/prefer-arrow-functions": "error"
   }
 }
