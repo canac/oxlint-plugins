@@ -1,0 +1,45 @@
+{
+  "name": "@canac/oxlint-plugins",
+  "version": "0.0.0",
+  "description": "A small collection of oxlint plugins",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canac/oxlint-plugins.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "fmt": "oxfmt --write .",
+    "fmt:check": "oxfmt --check .",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oxlint/plugins": "^1.91.0"
+  },
+  "devDependencies": {
+    "@canac/oxc-config": "^0.1.0",
+    "@types/node": "^26.6.6",
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0",
+    "oxlint-tsgolint": "^7.0.2005",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

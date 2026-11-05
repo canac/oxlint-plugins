@@ -1,0 +1,18 @@
+min_version: 2.0.0
+
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      run: pnpm exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    lint:
+      run: pnpm exec oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    typecheck:
+      run: pnpm typecheck
+
+    test:
+      run: pnpm test
