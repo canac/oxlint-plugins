@@ -24,24 +24,20 @@ const rule: Rule = {
     fixable: "code",
   },
   createOnce(context) {
-    function buildArrow(fn: ESTree.Function, body: ESTree.FunctionBody): string {
+    function buildArrow(fn: ESTree.Function, body: ESTree.FunctionBody): string | null {
       const source = context.sourceCode;
       const asyncPrefix = fn.async ? "async " : "";
       const generics = fn.typeParameters ? source.getText(fn.typeParameters) : "";
-      // Slice the original `(params)` directly from source so type
-      // annotations, comments, and trailing commas are preserved.
-      const text = source.text;
-      const paramsClose = text.lastIndexOf(")", body.range[0] - 1);
-      let scanFrom: number;
-      if (fn.typeParameters) {
-        scanFrom = fn.typeParameters.range[1];
-      } else if (fn.id) {
-        scanFrom = fn.id.range[1];
-      } else {
-        scanFrom = fn.range[0] + (fn.async ? "async function".length : "function".length);
+      // Tokens skip comments and parens inside the return type, which raw text scanning can't.
+      const anchor = fn.typeParameters ?? fn.id;
+      const paramsOpen = anchor
+        ? source.getTokenAfter(anchor)
+        : source.getFirstToken(fn, { filter: (token) => token.value === "(" });
+      const paramsClose = source.getTokenBefore(fn.returnType ?? body);
+      if (paramsOpen?.value !== "(" || paramsClose?.value !== ")") {
+        return null;
       }
-      const paramsOpen = text.indexOf("(", scanFrom);
-      const params = text.slice(paramsOpen, paramsClose + 1);
+      const params = source.text.slice(paramsOpen.range[0], paramsClose.range[1]);
       const returnType = fn.returnType ? source.getText(fn.returnType) : "";
       const bodyText = source.getText(body);
       return `${asyncPrefix}${generics}${params}${returnType} => ${bodyText}`;
@@ -55,12 +51,13 @@ const rule: Rule = {
         return;
       }
 
-      const replacement = `const ${node.id.name} = ${buildArrow(node, node.body)};`;
+      const arrow = buildArrow(node, node.body);
+      const replacement = arrow === null ? null : `const ${node.id.name} = ${arrow};`;
       context.report({
         node,
         message: "Use an arrow function instead of `function`.",
         fix(fixer) {
-          return fixer.replaceText(node, replacement);
+          return replacement === null ? null : fixer.replaceText(node, replacement);
         },
       });
     }
@@ -80,12 +77,12 @@ const rule: Rule = {
         return;
       }
 
-      const body = node.body;
+      const arrow = buildArrow(node, node.body);
       context.report({
         node,
         message: "Use an arrow function instead of `function`.",
         fix(fixer) {
-          return fixer.replaceText(node, buildArrow(node, body));
+          return arrow === null ? null : fixer.replaceText(node, arrow);
         },
       });
     }

@@ -79,6 +79,30 @@ ruleTester.run("prefer-arrow-functions", rule, {
       errors: 1,
     },
     {
+      name: "fixes return type containing a function type",
+      code: "function f<T>(k: T): [T[], (key: T) => void] { return [[], () => {}]; }",
+      output: "const f = <T>(k: T): [T[], (key: T) => void] => { return [[], () => {}]; };",
+      errors: 1,
+    },
+    {
+      name: "fixes function expression returning a function type",
+      code: "const f = function (a: number): (b: number) => number { return (b) => a + b; };",
+      output: "const f = (a: number): (b: number) => number => { return (b) => a + b; };",
+      errors: 1,
+    },
+    {
+      name: "fixes params with parens in comments and defaults",
+      code: "function /* ( */ f(a = g(1) /* ) */) { return a; }",
+      output: "const f = (a = g(1) /* ) */) => { return a; };",
+      errors: 1,
+    },
+    {
+      name: "fixes anonymous async function with comment before params",
+      code: "const f = async function /* ( */ () { return 1; };",
+      output: "const f = async () => { return 1; };",
+      errors: 1,
+    },
+    {
       name: "flags nested function expression",
       code: "function outer() { return function () { return 1; }; }",
       output: "const outer = () => { return () => { return 1; }; };",
