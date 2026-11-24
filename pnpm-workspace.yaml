@@ -1,3 +1,7 @@
 autoDedupe: true
+lockfile:
+  includeResolutionSettings: true
+minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@canac/*"
+minimumReleaseAgeExcludePrune: true
